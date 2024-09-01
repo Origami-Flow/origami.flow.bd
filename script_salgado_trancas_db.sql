@@ -1,103 +1,111 @@
-create database salgado_trancas;
 
-use salgado_trancas;
-
-
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`espessura_de_cabelo` (
-  `id_espessura_de_cabelo` INT NOT NULL,
-  `espessura` VARCHAR(255) NULL,
-  PRIMARY KEY (`id_espessura_de_cabelo`));
-
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`tipo_genero` (
-  `id_genero` INT NOT NULL,
-  `genero` VARCHAR(255) NULL,
-  PRIMARY KEY (`id_genero`));
+CREATE DATABASE IF NOT EXISTS salgado_trancas;
+USE salgado_trancas;
 
 
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`usuario` (
-  `id_usuario` INT NOT NULL,
-  `nome` VARCHAR(255) NULL,
-  `dt_nascimento` DATE NULL,
-  `email` VARCHAR(255) NULL,
-  `senha` VARCHAR(255) NULL,
-  `id_google` VARCHAR(255) NULL,
-  `telefone` VARCHAR(255) NULL,
-  `espessura_de_cabelo_id_espessura_de_cabelo` INT NOT NULL,
-  `tipo_genero_id_genero` INT NOT NULL,
-  PRIMARY KEY (`id_usuario`),
-  INDEX `fk_usuario_espessura_de_cabelo1_idx` (`espessura_de_cabelo_id_espessura_de_cabelo` ASC) VISIBLE,
-  INDEX `fk_usuario_tipo_genero1_idx` (`tipo_genero_id_genero` ASC) VISIBLE,
-  CONSTRAINT `fk_usuario_espessura_de_cabelo1`
-    FOREIGN KEY (`espessura_de_cabelo_id_espessura_de_cabelo`)
-    REFERENCES `salgado_trancas`.`espessura_de_cabelo` (`id_espessura_de_cabelo`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_usuario_tipo_genero1`
-    FOREIGN KEY (`tipo_genero_id_genero`)
-    REFERENCES `salgado_trancas`.`tipo_genero` (`id_genero`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`trancista` (
-  `id_trancista` INT NOT NULL,
-  `nome` VARCHAR(255) NULL,
-  `email` VARCHAR(255) NULL,
-  `senha` VARCHAR(255) NULL,
-  `id_google` VARCHAR(255) NULL,
-  PRIMARY KEY (`id_trancista`));
+CREATE TABLE IF NOT EXISTS tipo_de_cabelo (
+  id_tipo_de_cabelo INT PRIMARY KEY,
+  tipo VARCHAR(100) NOT NULL
+);
 
 
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`status_agendamento` (
-  `id_status` INT NOT NULL,
-  `status` VARCHAR(255) NULL,
-  PRIMARY KEY (`id_status`));
+CREATE TABLE IF NOT EXISTS tipo_genero (
+  id_genero INT PRIMARY KEY,
+  genero VARCHAR(50) NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`agendamento` (
-  `id_agendamento` INT NOT NULL,
-  `data` DATETIME NULL,
-  `tipo_tranca` VARCHAR(255) NULL,
-  `valor_pago` DOUBLE NULL,
-  `valor_sinal` DOUBLE NULL,
-  `usuario_id_usuario` INT NOT NULL,
-  `trancista_id_trancista` INT NOT NULL,
-  `status_agendamento_id_status` INT NOT NULL,
-  PRIMARY KEY (`id_agendamento`),
-  INDEX `fk_agendamento_usuario_idx` (`usuario_id_usuario` ASC) VISIBLE,
-  INDEX `fk_agendamento_trancista1_idx` (`trancista_id_trancista` ASC) VISIBLE,
-  INDEX `fk_agendamento_status_agendamento1_idx` (`status_agendamento_id_status` ASC) VISIBLE,
-  CONSTRAINT `fk_agendamento_usuario`
-    FOREIGN KEY (`usuario_id_usuario`)
-    REFERENCES `salgado_trancas`.`usuario` (`id_usuario`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_agendamento_trancista1`
-    FOREIGN KEY (`trancista_id_trancista`)
-    REFERENCES `salgado_trancas`.`trancista` (`id_trancista`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_agendamento_status_agendamento1`
-    FOREIGN KEY (`status_agendamento_id_status`)
-    REFERENCES `salgado_trancas`.`status_agendamento` (`id_status`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
 
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`produto` (
-  `id_produto` INT NOT NULL,
-  `nome` VARCHAR(255) NULL,
-  `quantidade` INT NULL,
-  `marca` VARCHAR(255) NULL,
-  `descricao` TEXT NULL,
-  PRIMARY KEY (`id_produto`));
+CREATE TABLE IF NOT EXISTS usuario (
+  id_usuario INT PRIMARY KEY auto_increment,
+  nome VARCHAR(100) NOT NULL,
+  dt_nascimento DATE,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(255),
+  id_google VARCHAR(255),
+  telefone VARCHAR(20),
+  tipo_de_cabelo_id INT,
+  tipo_genero_id INT,
+  FOREIGN KEY (tipo_de_cabelo_id) 
+    REFERENCES tipo_de_cabelo (id_tipo_de_cabelo),
+  FOREIGN KEY (tipo_genero_id) 
+    REFERENCES tipo_genero (id_genero)
+);
 
-CREATE TABLE IF NOT EXISTS `salgado_trancas`.`avaliacao_usario` (
-  `id_avaliacao` INT NOT NULL,
-  `avaliacao` VARCHAR(255) NULL,
-  `nota` DOUBLE NULL,
-  `usuario_id_usuario` INT NOT NULL,
-  PRIMARY KEY (`id_avaliacao`),
-  INDEX `fk_avaliacao_usario_usuario1_idx` (`usuario_id_usuario` ASC) VISIBLE,
-  CONSTRAINT `fk_avaliacao_usario_usuario1`
-    FOREIGN KEY (`usuario_id_usuario`)
-    REFERENCES `salgado_trancas`.`usuario` (`id_usuario`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+
+CREATE TABLE IF NOT EXISTS trancista (
+  id_trancista INT PRIMARY KEY auto_increment,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  senha VARCHAR(255),
+  id_google VARCHAR(255)
+);
+
+
+CREATE TABLE IF NOT EXISTS status_agendamento (
+  id_status INT PRIMARY KEY,
+  status VARCHAR(50) NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS agendamento (
+  id_agendamento INT PRIMARY KEY auto_increment,
+  data DATETIME NOT NULL,
+  tipo_tranca VARCHAR(100) NOT NULL,
+  valor_pago DECIMAL(10, 2) NOT NULL,
+  valor_sinal DECIMAL(10, 2),
+  usuario_id INT,
+  trancista_id INT,
+  status_agendamento_id INT,
+  FOREIGN KEY (usuario_id) 
+    REFERENCES usuario (id_usuario),
+  FOREIGN KEY (trancista_id) 
+    REFERENCES trancista (id_trancista),
+  FOREIGN KEY (status_agendamento_id) 
+    REFERENCES status_agendamento (id_status)
+);
+
+
+CREATE TABLE IF NOT EXISTS produto (
+  id_produto INT PRIMARY KEY auto_increment,
+  nome VARCHAR(100) NOT NULL,
+  quantidade INT NOT NULL,
+  marca VARCHAR(100),
+  descricao TEXT
+);
+
+
+CREATE TABLE IF NOT EXISTS avaliacao_usuario (
+  id_avaliacao INT PRIMARY KEY auto_increment,
+  avaliacao VARCHAR(255),
+  nota INT NOT NULL,
+  usuario_id INT,
+  FOREIGN KEY (usuario_id) 
+    REFERENCES usuario (id_usuario)
+);
+
+
+
+/* INSERTS DO BANCO */
+
+INSERT INTO tipo_de_cabelo VALUES
+(1,'1'),
+(2,'2A'),
+(3,'2B'),
+(4,'2C'),
+(5,'3A'),
+(6,'3B'),
+(7,'3C'),
+(8,'4A'),
+(9,'4B'),
+(10,'4C');
+
+INSERT INTO tipo_genero VALUES
+(1,'Masculino'),
+(2,'Feminino'),
+(3,'Outro');
+
+INSERT INTO status_agendamento VALUES 
+(1,'Agendado'),
+(2,'Cancelado'),
+(3,'Concluido');
+
